@@ -8,19 +8,25 @@ _start:
 	mov al, ah
 	mov bh, ah
 	mov bl, ah
-	mov si, 0
-	jmp print
 
+	mov bx, msg1
 
+	call print
+
+	jmp finish
 print:
+	mov si, 0
+print_loop:
 	mov ah, 0x0e
-	mov al, [msg + si]
+	mov al, [bx + si]
 	int 0x10
 	add si, 1
-	cmp byte [msg + si], 0
-	jne print
+	cmp byte [bx + si], 0
+	jne print_loop
+	ret
 
-jmp $
+finish:
+	jmp $
 
-msg:
+msg1:
 	db "Second stage loaded.", 0
