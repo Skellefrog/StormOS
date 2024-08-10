@@ -26,7 +26,12 @@ bootloader_stages:
 	make stage_2
 
 build_img:
+	make clean
 	make bootloader_stages
 	dd if=/dev/zero of=$(img) bs=$(block_size) count=$(block_count)
 	dd if=$(stage_1_bin) of=$(img) bs=512 count=1
 	dd if=$(stage_2_bin) of=$(img) bs=512 count=64 seek=1
+
+clean:
+	rm -r bin
+	mkdir bin
