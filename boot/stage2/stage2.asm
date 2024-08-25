@@ -1,5 +1,6 @@
 bits 16
 org 0x7e00
+cli
 
 global _start
 
@@ -34,15 +35,13 @@ check_a20:
 	push di
 	push si
 
-	cli    		; disable interrupts
-
 	xor ax, ax
 	not ax		; ax = FFFF
 	mov ds, ax
 	mov si, 0x7DfE	; end of bootsector with magic bytes
 
-	mov al, 0xAA55	; magic number at end of bootsector
-	cmp al, [ds:si]
+	mov eax, 0xAA55	; magic number at end of bootsector
+	cmp eax, [ds:si]
 	je a20_disabled
 	jmp a20_enabled
 a20_disabled:
@@ -76,6 +75,21 @@ a20_check_passed:
 	call print
 	jmp finish
 
+
+reload_segments:
+	jmp 08h:.reload	; 0x08 is the kernel code segment
+.reload:
+	mov bx, msg1
+	call print
+
+	mov ax, 0x10		; 0x10 is the kernel data segment
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+	ret
+
 print:
 	pusha
 print_loop:
@@ -108,42 +122,3 @@ a20_disabled_msg:
 	db "A20 Line disabled.", 0
 a20_enabled_msg:
 	db "A20 Line enabled.", 0
-
-gdt:
-	times 0x08 db 0		; Null Descriptor
-; GDT KERNEL CODE SEGMENT
-	dw 0xFFFF		; Limit lower 16 bits (0-15)
-	dw 0x0000		; Base lower 16 bits (15-31)
-	db 0x00			; Base middle 8 bits (32-39)
-	db 0x9A			; Access Byte, 0b10011010 (40-47)
-	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
-	db 0x00			; Base higher 8 bits (56-63)
-; GDT KERNEL DATA SEGMENT
-	dw 0xFFFF		; Limit lower 16 bits (0-15)
-	dw 0x0000		; Base lower 16 bits (15-31)
-	db 0x00			; Base middle 8 bits (32-39)
-	db 0x92			; Access Byte, 0b10010010 (40-47)
-	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
-	db 0x00			; Base higher 8 bits (56-63)
-; GDT USER CODE SEGMENT
-	dw 0xFFFF		; Limit lower 16 bits (0-15)
-	dw 0x0000		; Base lower 16 bits (15-31)
-	db 0x00			; Base middle 8 bits (32-39)
-	db 0xFA			; Access Byte, 0b11111010 (40-47)
-	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
-	db 0x00			; Base higher 8 bits (56-63)
-; GDT USER DATA SEGMENT
-	dw 0xFFFF		; Limit lower 16 bits (0-15)
-	dw 0x0000		; Base lower 16 bits (15-31)
-	db 0x00			; Base middle 8 bits (32-39)
-	db 0xF2			; Access Byte, 0b11110010 (40-47)
-	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
-	db 0x00			; Base higher 8 bits (56-63)
-; GDT TASK STATE SEGMENT
-	dw 0x006E		; Limit lower 16 bits (0-15)
-	dw 0xFE00		; Base lower 16 bits (15-31)
-	db 0x00			; Base middle 8 bits (32-39)
-	db 0x89			; Access Byte, 0b11110010 (40-47)
-	db 0x00			; Flag bits and limit higher 4 bits (48-55)
-	db 0x00			; Base higher 8 bits (56-63)
-
