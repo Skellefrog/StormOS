@@ -7,3 +7,7 @@
 - [ ] Enable Protected mode
 - [ ] Write dummy kernel code
 - [ ] Load + jump to kernel
+
+...
+
+- [ ] Add more TSS entries to GDT for multi-processing support

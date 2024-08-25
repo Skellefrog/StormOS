@@ -108,3 +108,42 @@ a20_disabled_msg:
 	db "A20 Line disabled.", 0
 a20_enabled_msg:
 	db "A20 Line enabled.", 0
+
+gdt:
+	times 0x08 db 0		; Null Descriptor
+; GDT KERNEL CODE SEGMENT
+	dw 0xFFFF		; Limit lower 16 bits (0-15)
+	dw 0x0000		; Base lower 16 bits (15-31)
+	db 0x00			; Base middle 8 bits (32-39)
+	db 0x9A			; Access Byte, 0b10011010 (40-47)
+	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
+	db 0x00			; Base higher 8 bits (56-63)
+; GDT KERNEL DATA SEGMENT
+	dw 0xFFFF		; Limit lower 16 bits (0-15)
+	dw 0x0000		; Base lower 16 bits (15-31)
+	db 0x00			; Base middle 8 bits (32-39)
+	db 0x92			; Access Byte, 0b10010010 (40-47)
+	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
+	db 0x00			; Base higher 8 bits (56-63)
+; GDT USER CODE SEGMENT
+	dw 0xFFFF		; Limit lower 16 bits (0-15)
+	dw 0x0000		; Base lower 16 bits (15-31)
+	db 0x00			; Base middle 8 bits (32-39)
+	db 0xFA			; Access Byte, 0b11111010 (40-47)
+	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
+	db 0x00			; Base higher 8 bits (56-63)
+; GDT USER DATA SEGMENT
+	dw 0xFFFF		; Limit lower 16 bits (0-15)
+	dw 0x0000		; Base lower 16 bits (15-31)
+	db 0x00			; Base middle 8 bits (32-39)
+	db 0xF2			; Access Byte, 0b11110010 (40-47)
+	db 0xCF			; Flag bits and limit higher 4 bits (48-55)
+	db 0x00			; Base higher 8 bits (56-63)
+; GDT TASK STATE SEGMENT
+	dw 0x006E		; Limit lower 16 bits (0-15)
+	dw 0xFE00		; Base lower 16 bits (15-31)
+	db 0x00			; Base middle 8 bits (32-39)
+	db 0x89			; Access Byte, 0b11110010 (40-47)
+	db 0x00			; Flag bits and limit higher 4 bits (48-55)
+	db 0x00			; Base higher 8 bits (56-63)
+
